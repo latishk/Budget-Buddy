@@ -12,7 +12,7 @@
   }
   #map {
     height: 50%;
-    width: 50%;
+    width: 100%;
     margin-left: 500 ;
   }
   #container {
@@ -27,7 +27,7 @@
 
 </head>
   <body>
-    <div id  = "form">
+    <!-- <div id  = "form">
     Price 1<br>
       <input type="text" id="price1"><br>
       Price 2<br>
@@ -35,9 +35,9 @@
       Price 3<br>
       <input type="text" id="price3"><br>
       <button onclick="processInputs()">Click me</button>
-    </div>
+    </div> -->
 
-    <div id = "results"></div>
+
     <!-- <script>
     $(document).ready(function() {
         var data = '[{ "firstName": "John", "lastName": "Smith" }, { "firstName": "Peter", "lastName": "Jason" }, { "firstName": "Alice", "lastName": "Ray" }]';
@@ -56,45 +56,141 @@
     <script   src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
     <script>
 
+
+    var count = 0;
+    $(document).ready(function(){
+
+        var counter = 2;
+
+        $("#addButton").click(function () {
+
+    	if(counter>10){
+                alert("Only 10 textboxes allow");
+                return false;
+    	}
+
+    	var newTextBoxDiv = $(document.createElement('div'))
+    	     .attr("id", 'TextBoxDiv' + counter);
+
+    	newTextBoxDiv.after().html('<label>Price '+ counter + ' : </label>' +
+    	      '<input type="text" name="textbox' + counter +
+    	      '" id="textbox' + counter + '" value="" >');
+
+    	newTextBoxDiv.appendTo("#TextBoxesGroup");
+
+
+    	counter++;
+         });
+
+         $("#removeButton").click(function () {
+    	if(counter==1){
+              alert("No more textbox to remove");
+              return false;
+           }
+
+    	counter--;
+
+            $("#TextBoxDiv" + counter).remove();
+
+         });
+count = counter;
+         $("#getButtonValue").click(function () {
+
+    	var msg = '';
+    	for(i=1; i<counter; i++){
+       	  msg += "\n Textbox #" + i + " : " + $('#textbox' + i).val();
+    	}
+        	  alert(msg);
+         });
+      });
+
+
       //first call our api
       //fetch the response
       //Update the graphs/results
       //dojo/jqeuery
       function processInputs() {
         initMap();
+        var myNode = document.getElementById("container");
+        while (myNode.firstChild) {
+          myNode.removeChild(myNode.firstChild);
+        }
         navigator.geolocation.getCurrentPosition(function(loc){
-          var price1 = document.getElementById("price1").value;
-          var price2 = document.getElementById("price2").value;
-          var price3 = document.getElementById("price3").value;
-          //console.log(price3);
+          // var price1 = document.getElementById("price1").value;
+          // var price2 = document.getElementById("price2").value;
+          // var price3 = document.getElementById("price3").value;
+          var prices=[];
+          for(i=1; i<count; i++){
+           	  prices.push($('#textbox' + i).val());
+        	}
+          console.log(prices);
           var people = [];
-          people.push({price:price1, lat:loc.coords.latitude, lon:loc.coords.longitude })
-          people.push({price:price2, lat:loc.coords.latitude, lon:loc.coords.longitude })
-          people.push({price:price3, lat:loc.coords.latitude, lon:loc.coords.longitude })
+          for(i=1; i<count; i++){
+            people.push({price:prices[i-1], lat:loc.coords.latitude, lon:loc.coords.longitude });
+        	}
+          // people.push({price:price1, lat:loc.coords.latitude, lon:loc.coords.longitude });
+          // people.push({price:price2, lat:loc.coords.latitude, lon:loc.coords.longitude });
+          // people.push({price:price3, lat:loc.coords.latitude, lon:loc.coords.longitude });
           //console.log(people);
         //  var returned  = $.post("/getPlaceToEat", JSON.stringify(people), function(){}, "json");
 
           var req = $.ajax({
-            url: "/getPlaceToEat",
-            data: JSON.stringify(people),
-            processData: false,
-            method: "post",
-            contentType: "application/json"
+                url: "/getPlaceToEat",
+                data: JSON.stringify(people),
+                processData: false,
+                method: "post",
+                contentType: "application/json"
+              });
+
+              req.done(function(data) {
+                console.log(data);
+                var table = '<table><thead><th>Restaurant Name</th><th>Price For two</th></thead><tbody>';
+                var obj = (data);
+                var chartData = [];
+                $.each(obj, function() {
+                    table += '<tr><td>' + this['restaurant']['name'] + '</td><td>' + this['restaurant']['average_cost_for_two'] + '</td></tr>';
+                    chartData.push([this['restaurant']['name'] , this['restaurant']['average_cost_for_two']]);
+                });
+                table += '</tbody></table>';
+                document.getElementById("results").innerHTML = table;
+
+                chart = anychart.column();
+                chart.animation(true);
+                chart.title('Top 10 Cosmetic Products by Revenue');
+
+                var series = chart.column(chartData);
+                console.log(series);
+
+                // create column chart
+                series.tooltip().titleFormatter(function() {
+                    return this.x
+                });
+
+                series.tooltip().textFormatter(function() {
+                    return '$' + parseInt(this.value).toLocaleString()
+                });
+                series.tooltip().position('top').anchor('bottom').offsetX(0).offsetY(5);
+
+                // set scale minimum
+                chart.yScale().minimum(0);
+
+                // set yAxis labels formatter
+                chart.yAxis().labels().textFormatter("${%Value}");
+
+                // tooltips position and interactivity settings
+                chart.tooltip().positionMode('point');
+                chart.interactivity().hoverMode('byX');
+
+                // axes titles
+                chart.xAxis().title('Product');
+                chart.yAxis().title('Revenue');
+
+                // set container id for the chart
+                chart.container('container');
+
+                // initiate chart drawing
+                chart.draw();
           });
-          req.done(function(data) {
-            console.log(data);
-            var table = '<table><thead><th>Restaurant Name Name</th><th>Price For two</th></thead><tbody>';
-            var obj = (data);
-            $.each(obj, function() {
-                table += '<tr><td>' + this['restaurant']['name'] + '</td><td>' + this['restaurant']['average_cost_for_two'] + '</td></tr>';
-            });
-            table += '</tbody></table>';
-            document.getElementById("results").innerHTML = table;
-          });
-
-
-            //grap and map
-
         });
 
         //get all form data from the user
@@ -104,7 +200,16 @@
         //update your chart api
       }
     </script>
-
+    <div id='TextBoxesGroup'>
+	<div id="TextBoxDiv1">
+		<label>Price 1 : </label><input type='textbox' id='textbox1' >
+	</div>
+</div>
+<input type='button' value='Add Textbox' id='addButton'>
+<button onclick="processInputs()">Click me</button>
+<!-- <input type='button' value='Get TextBox Value' id='getButtonValue'> -->
+    <div id = "container"></div>
+    <div id = "results"></div>
     <script>
      // Note: This example requires that you consent to location sharing when
      // prompted by your browser. If you see the error "The Geolocation service
