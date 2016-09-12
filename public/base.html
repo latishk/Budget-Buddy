@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Title</title>
+    <style>
+  html, body {
+    height: 100%;
+    width: 100%
+    margin: 0;
+    padding: 0;
+  }
+  #map {
+    height: 50%;
+    width: 50%;
+    margin-left: 500 ;
+  }
+  #container {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+</style>
+<script src="https://cdn.anychart.com/js/7.11.1/anychart-bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.anychart.com/css/latest/anychart-ui.min.css" />
+
+</head>
+  <body>
+    <div id  = "form">
+    Price 1<br>
+      <input type="text" id="price1"><br>
+      Price 2<br>
+      <input type="text" id="price2"><br>
+      Price 3<br>
+      <input type="text" id="price3"><br>
+      <button onclick="processInputs()">Click me</button>
+    </div>
+
+    <div id = "results"></div>
+    <!-- <script>
+    $(document).ready(function() {
+        var data = '[{ "firstName": "John", "lastName": "Smith" }, { "firstName": "Peter", "lastName": "Jason" }, { "firstName": "Alice", "lastName": "Ray" }]';
+        var table = '<table><thead><th>First Name</th><th>Last Name</th></thead><tbody>';
+        var obj = $.parseJSON(data);
+        $.each(obj, function() {
+            table += '<tr><td>' + this['firstName'] + '</td><td>' + this['lastName'] + '</td></tr>';
+        });
+        table += '</tbody></table>';
+        document.getElementById("datalist").innerHTML = table;
+    }); -->
+</script>
+
+    <div id="map"></div>
+
+    <script   src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
+    <script>
+
+      //first call our api
+      //fetch the response
+      //Update the graphs/results
+      //dojo/jqeuery
+      function processInputs() {
+        initMap();
+        navigator.geolocation.getCurrentPosition(function(loc){
+          var price1 = document.getElementById("price1").value;
+          var price2 = document.getElementById("price2").value;
+          var price3 = document.getElementById("price3").value;
+          //console.log(price3);
+          var people = [];
+          people.push({price:price1, lat:loc.coords.latitude, lon:loc.coords.longitude })
+          people.push({price:price2, lat:loc.coords.latitude, lon:loc.coords.longitude })
+          people.push({price:price3, lat:loc.coords.latitude, lon:loc.coords.longitude })
+          //console.log(people);
+        //  var returned  = $.post("/getPlaceToEat", JSON.stringify(people), function(){}, "json");
+
+          var req = $.ajax({
+            url: "/getPlaceToEat",
+            data: JSON.stringify(people),
+            processData: false,
+            method: "post",
+            contentType: "application/json"
+          });
+          req.done(function(data) {
+            console.log(data);
+            var table = '<table><thead><th>Restaurant Name Name</th><th>Price For two</th></thead><tbody>';
+            var obj = (data);
+            $.each(obj, function() {
+                table += '<tr><td>' + this['restaurant']['name'] + '</td><td>' + this['restaurant']['average_cost_for_two'] + '</td></tr>';
+            });
+            table += '</tbody></table>';
+            document.getElementById("results").innerHTML = table;
+          });
+
+
+            //grap and map
+
+        });
+
+        //get all form data from the user
+        //create people json
+        //xhr.post("/getPlacesToEat", data)
+        //on response
+        //update your chart api
+      }
+    </script>
+
+    <script>
+     // Note: This example requires that you consent to location sharing when
+     // prompted by your browser. If you see the error "The Geolocation service
+     // failed.", it means you probably did not give permission for the browser to
+     // locate you.
+
+     function initMap() {
+       var map = new google.maps.Map(document.getElementById('map'), {
+         center: {lat: -34.397, lng: 150.644},
+         zoom: 6
+       });
+       var infoWindow = new google.maps.InfoWindow({map: map});
+
+       // Try HTML5 geolocation.
+       if (navigator.geolocation) {
+         navigator.geolocation.getCurrentPosition(function(position) {
+           var pos = {
+             lat: position.coords.latitude,
+             lng: position.coords.longitude
+           };
+
+           infoWindow.setPosition(pos);
+           infoWindow.setContent('Location found.');
+           map.setCenter(pos);
+         }, function() {
+           handleLocationError(true, infoWindow, map.getCenter());
+         });
+       } else {
+         // Browser doesn't support Geolocation
+         handleLocationError(false, infoWindow, map.getCenter());
+       }
+     }
+
+     function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+       infoWindow.setPosition(pos);
+       infoWindow.setContent(browserHasGeolocation ?
+                             'Error: The Geolocation service failed.' :
+                             'Error: Your browser doesn\'t support geolocation.');
+     }
+   </script>
+   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpQ6oEzIubwjoNZUomefGCFqpXP4BHyOA&callback=initMap">
+   </script>
+  </body>
+</html>
