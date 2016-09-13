@@ -16,7 +16,10 @@ make sure that you are in intuit-hackathon directory
 install node package manager 
 
 $ npm install --save
+
 run the node app
+
+
 $node app.js
 
 go to your chrome browser and go to page http://localhost:3000/ to see the app running.
