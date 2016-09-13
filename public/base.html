@@ -1,172 +1,151 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>Title</title>
+    <title>Intuit Challenge </title>
     <style>
-  html, body {
-    height: 100%;
-    width: 100%
-    margin: 0;
-    padding: 0;
-  }
-  #map {
-    height: 50%;
-    width: 100%;
-    margin-left: 500 ;
-  }
-  #container {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-</style>
-<script src="https://cdn.anychart.com/js/7.11.1/anychart-bundle.min.js"></script>
-<link rel="stylesheet" href="https://cdn.anychart.com/css/latest/anychart-ui.min.css" />
+        html, body {
+            height: 100%;
+            width: 100% margin : 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            /*margin-left: 50%;*/
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #whole{
+          width: 100%;
+          height: 100%;
+        }
+        #first, #second{
+          width: 50%;
+          height: 50%;
+
+        }
+
+
+    </style>
+    <script src="https://cdn.anychart.com/js/7.11.1/anychart-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.anychart.com/css/latest/anychart-ui.min.css"/>
 
 </head>
-  <body>
-    <!-- <div id  = "form">
-    Price 1<br>
-      <input type="text" id="price1"><br>
-      Price 2<br>
-      <input type="text" id="price2"><br>
-      Price 3<br>
-      <input type="text" id="price3"><br>
-      <button onclick="processInputs()">Click me</button>
-    </div> -->
+<body>
+<div id="whole">
+  <div = "second">
+    <div>
+      <div id='TextBoxesGroup'>
+          <div id="TextBoxDiv1">
+              <label>Price 1 : </label><input type='textbox' id='textbox1'>
+          </div>
+      </div>
+      <input type='button' value='Add another Price' id='addButton'>
+      <button onclick="processInputs()"> Get Restaurants</button>
+    </div>
+    <div id="results"></div>
+  </div>
+  <div id = "first">
+      <div id="map"></div>
+      <div id="container"></div>
+  </div>
 
 
-    <!-- <script>
-    $(document).ready(function() {
-        var data = '[{ "firstName": "John", "lastName": "Smith" }, { "firstName": "Peter", "lastName": "Jason" }, { "firstName": "Alice", "lastName": "Ray" }]';
-        var table = '<table><thead><th>First Name</th><th>Last Name</th></thead><tbody>';
-        var obj = $.parseJSON(data);
-        $.each(obj, function() {
-            table += '<tr><td>' + this['firstName'] + '</td><td>' + this['lastName'] + '</td></tr>';
-        });
-        table += '</tbody></table>';
-        document.getElementById("datalist").innerHTML = table;
-    }); -->
-</script>
+</div>
 
-    <div id="map"></div>
-
-    <script   src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
-    <script>
-
-
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"
+        integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+<script>
     var count = 0;
-    $(document).ready(function(){
-
+    $(document).ready(function () {
         var counter = 2;
-
         $("#addButton").click(function () {
-
-    	if(counter>10){
+            if (counter > 10) {
                 alert("Only 10 textboxes allow");
                 return false;
-    	}
+            }
+            var newTextBoxDiv = $(document.createElement('div')).attr("id", 'TextBoxDiv' + counter);
+            newTextBoxDiv.after().html('<label>Price ' + counter + ' : </label>' + '<input type="text" name="textbox' + counter +
+                    '" id="textbox' + counter + '" value="" >');
+            newTextBoxDiv.appendTo("#TextBoxesGroup");
+            counter++;
+        });
 
-    	var newTextBoxDiv = $(document.createElement('div'))
-    	     .attr("id", 'TextBoxDiv' + counter);
-
-    	newTextBoxDiv.after().html('<label>Price '+ counter + ' : </label>' +
-    	      '<input type="text" name="textbox' + counter +
-    	      '" id="textbox' + counter + '" value="" >');
-
-    	newTextBoxDiv.appendTo("#TextBoxesGroup");
-
-
-    	counter++;
-         });
-
-         $("#removeButton").click(function () {
-    	if(counter==1){
-              alert("No more textbox to remove");
-              return false;
-           }
-
-    	counter--;
-
+        $("#removeButton").click(function () {
+            if (counter == 1) {
+                alert("No more textbox to remove");
+                return false;
+            }
+            counter--;
             $("#TextBoxDiv" + counter).remove();
-
-         });
-count = counter;
-         $("#getButtonValue").click(function () {
-
-    	var msg = '';
-    	for(i=1; i<counter; i++){
-       	  msg += "\n Textbox #" + i + " : " + $('#textbox' + i).val();
-    	}
-        	  alert(msg);
-         });
-      });
-
-
-      //first call our api
-      //fetch the response
-      //Update the graphs/results
-      //dojo/jqeuery
-      function processInputs() {
-        initMap();
+        });
+        count = counter;
+        $("#getButtonValue").click(function () {
+            var msg = '';
+            for (i = 1; i < counter; i++) {
+                msg += "\n Textbox #" + i + " : " + $('#textbox' + i).val();
+            }
+            alert(msg);
+        });
+    });
+    function processInputs() {
         var myNode = document.getElementById("container");
         while (myNode.firstChild) {
-          myNode.removeChild(myNode.firstChild);
+            myNode.removeChild(myNode.firstChild);
         }
-        navigator.geolocation.getCurrentPosition(function(loc){
-          // var price1 = document.getElementById("price1").value;
-          // var price2 = document.getElementById("price2").value;
-          // var price3 = document.getElementById("price3").value;
-          var prices=[];
-          for(i=1; i<count; i++){
-           	  prices.push($('#textbox' + i).val());
-        	}
-          console.log(prices);
-          var people = [];
-          for(i=1; i<count; i++){
-            people.push({price:prices[i-1], lat:loc.coords.latitude, lon:loc.coords.longitude });
-        	}
-          // people.push({price:price1, lat:loc.coords.latitude, lon:loc.coords.longitude });
-          // people.push({price:price2, lat:loc.coords.latitude, lon:loc.coords.longitude });
-          // people.push({price:price3, lat:loc.coords.latitude, lon:loc.coords.longitude });
-          //console.log(people);
-        //  var returned  = $.post("/getPlaceToEat", JSON.stringify(people), function(){}, "json");
+        navigator.geolocation.getCurrentPosition(function (loc) {
+            var prices = [];
+            for (i = 1; i < count; i++) {
+                prices.push($('#textbox' + i).val());
+            }
+            console.log(prices);
+            var people = [];
+            for (i = 1; i < count; i++) {
+                people.push({price: prices[i - 1], lat: loc.coords.latitude, lon: loc.coords.longitude});
+            }
 
-          var req = $.ajax({
+            var req = $.ajax({
                 url: "/getPlaceToEat",
                 data: JSON.stringify(people),
                 processData: false,
                 method: "post",
                 contentType: "application/json"
-              });
-
-              req.done(function(data) {
+            });
+            req.done(function (data) {
                 console.log(data);
+                // initMap(data);
+                addPlacesToMap(data);
+
                 var table = '<table><thead><th>Restaurant Name</th><th>Price For two</th></thead><tbody>';
                 var obj = (data);
                 var chartData = [];
-                $.each(obj, function() {
+                $.each(obj, function () {
                     table += '<tr><td>' + this['restaurant']['name'] + '</td><td>' + this['restaurant']['average_cost_for_two'] + '</td></tr>';
-                    chartData.push([this['restaurant']['name'] , this['restaurant']['average_cost_for_two']]);
+                    chartData.push([this['restaurant']['name'], this['restaurant']['average_cost_for_two']]);
                 });
                 table += '</tbody></table>';
                 document.getElementById("results").innerHTML = table;
 
                 chart = anychart.column();
                 chart.animation(true);
-                chart.title('Top 10 Cosmetic Products by Revenue');
+                chart.title('Recommended Places');
 
                 var series = chart.column(chartData);
                 console.log(series);
 
                 // create column chart
-                series.tooltip().titleFormatter(function() {
+                series.tooltip().titleFormatter(function () {
                     return this.x
                 });
 
-                series.tooltip().textFormatter(function() {
+                series.tooltip().textFormatter(function () {
                     return '$' + parseInt(this.value).toLocaleString()
                 });
                 series.tooltip().position('top').anchor('bottom').offsetX(0).offsetY(5);
@@ -190,67 +169,63 @@ count = counter;
 
                 // initiate chart drawing
                 chart.draw();
-          });
+            });
         });
+    }
+</script>
+<script>
+    // Note: This example requires that you consent to location sharing when
+    // prompted by your browser. If you see the error "The Geolocation service
+    // failed.", it means you probably did not give permission for the browser to
+    // locate you.
+    function addPlacesToMap(mapData) {
+        for (var i = 0; i < mapData.length; i++) {
+            console.log(mapData[i]['restaurant']['location']['latitude']);
+            var latLng = new google.maps.LatLng(mapData[i]['restaurant']['location']['latitude'], mapData[i]['restaurant']['location']['longitude']);
+            var marker = new google.maps.Marker({
+                position: latLng,
+                map: map,
+                customInfo: mapData[i]['restaurant']['average_cost_for_two']
 
-        //get all form data from the user
-        //create people json
-        //xhr.post("/getPlacesToEat", data)
-        //on response
-        //update your chart api
-      }
-    </script>
-    <div id='TextBoxesGroup'>
-	<div id="TextBoxDiv1">
-		<label>Price 1 : </label><input type='textbox' id='textbox1' >
-	</div>
-</div>
-<input type='button' value='Add Textbox' id='addButton'>
-<button onclick="processInputs()">Click me</button>
-<!-- <input type='button' value='Get TextBox Value' id='getButtonValue'> -->
-    <div id = "container"></div>
-    <div id = "results"></div>
-    <script>
-     // Note: This example requires that you consent to location sharing when
-     // prompted by your browser. If you see the error "The Geolocation service
-     // failed.", it means you probably did not give permission for the browser to
-     // locate you.
+            });
+        }
+    }
+    function initMap() {
 
-     function initMap() {
-       var map = new google.maps.Map(document.getElementById('map'), {
-         center: {lat: -34.397, lng: 150.644},
-         zoom: 6
-       });
-       var infoWindow = new google.maps.InfoWindow({map: map});
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: -43.08, lng: -77.6},
+            zoom: 12
+        });
+        var infoWindow = new google.maps.InfoWindow({map: map});
 
-       // Try HTML5 geolocation.
-       if (navigator.geolocation) {
-         navigator.geolocation.getCurrentPosition(function(position) {
-           var pos = {
-             lat: position.coords.latitude,
-             lng: position.coords.longitude
-           };
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
 
-           infoWindow.setPosition(pos);
-           infoWindow.setContent('Location found.');
-           map.setCenter(pos);
-         }, function() {
-           handleLocationError(true, infoWindow, map.getCenter());
-         });
-       } else {
-         // Browser doesn't support Geolocation
-         handleLocationError(false, infoWindow, map.getCenter());
-       }
-     }
+                infoWindow.setPosition(pos);
+                infoWindow.setContent('your location');
+                map.setCenter(pos);
+            }, function () {
+                handleLocationError(true, infoWindow, map.getCenter());
+            });
 
-     function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-       infoWindow.setPosition(pos);
-       infoWindow.setContent(browserHasGeolocation ?
-                             'Error: The Geolocation service failed.' :
-                             'Error: Your browser doesn\'t support geolocation.');
-     }
-   </script>
-   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpQ6oEzIubwjoNZUomefGCFqpXP4BHyOA&callback=initMap">
-   </script>
-  </body>
+
+        } else {
+            handleLocationError(false, infoWindow, map.getCenter());
+        }
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                'Error: The Geolocation service failed.' :
+                'Error: Your browser doesn\'t support geolocation.');
+    }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpQ6oEzIubwjoNZUomefGCFqpXP4BHyOA&callback=initMap">
+</script>
+</body>
 </html>

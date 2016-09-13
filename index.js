@@ -59,15 +59,7 @@ function setOptions(latitude, longitude){
 
 
 function callback(error, res, body) {
-  // if (!error && res.statusCode == 200) {
-  //   var info = JSON.parse(body);
-  //   return info;
-  // //  console.log(JSON.stringify(info.restaurants[0]));
-  //   // info.restaurants.forEach(function(item){
-  //   //   console.log(item.restaurant.name,"\t", item.restaurant.average_cost_for_two,"\t",item.restaurant.price_range,"\t", item.restaurant.location.address);
-  //   // });
-  // }
-  // console.log(error);
+
 }
 
 // request(options, callback);
@@ -90,24 +82,23 @@ function getRestauantsInPriceRange(averagePrice, data){
 
 function getPlaceToEat(people, response) {
 
-  request(setOptions(people[0].lat, people[0].lon), function(error, res, body) {
+    request(setOptions(people[0].lat, people[0].lon), function(error, res, body) {
+      var averagePrice =0;
 
-    var averagePrice =0;
-    for(var i =0; i <people.length; i++){
-       averagePrice += parseFloat(people[i].price);
-    }
-console.log("dfasfsdf  "+averagePrice);
-    averagePrice /= people.length;
-    averagePrice *= 2;
+      for(var i =0; i <people.length; i++){
+          averagePrice += parseFloat(people[i].price);
+      }
 
-    if (!error && res.statusCode == 200) {
-      var info = JSON.parse(body);
-      // console.log(JSON.stringify(info));
-      info = getRestauantsInPriceRange(averagePrice, info);
-      console.log("\n", JSON.stringify(info));
-      response.send(info);
+      console.log("dfasfsdf  "+averagePrice);
+      averagePrice /= people.length;
+      averagePrice *= 2;
+      if (!error && res.statusCode == 200) {
+        var info = JSON.parse(body);
+        info = getRestauantsInPriceRange(averagePrice, info);
+        console.log("\n", JSON.stringify(info));
+        response.send(info);
 
-    }
+      }
     console.log(error);
   });
 
