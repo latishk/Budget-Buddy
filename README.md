@@ -1,4 +1,4 @@
-The project is renamed from intuit-hackathon to Budget-Buddy.
+Welcome to Budget-Buddy.
 The current app is based on the idea that we regularly plan to eat with our friends and roommates who have different budgets. 
 Deciding which restarant to eat at becomes a task in which we have to look through menus to see the price. Here we want to budget plan our
 meal so we made a rest api using node.js for backend and express.js for middleware to show our concept of the app. One can add budget for 
